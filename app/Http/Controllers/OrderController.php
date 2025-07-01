@@ -6,6 +6,8 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use App\Models\Stock;
 
 class OrderController extends Controller
 {
@@ -27,16 +29,34 @@ class OrderController extends Controller
     }
 
     // Menambahkan user baru
-    public function store(Request $request): JsonResponse
-    {
-        $request->validate([
-            'customer_id' => 'required|string|max:255',
-            'id_barang' => 'required|string|max:255',
-            'order_date' => 'required|string|date',
-            'jumlah_barang' => 'required|integer',
-            'total' => 'required|integer',
-        ]);
+public function store(Request $request): JsonResponse
+{
+    $request->validate([
+        'customer_id' => 'required|string|max:255',
+        'id_barang' => 'required|string|max:255',
+        'order_date' => 'required|date',
+        'jumlah_barang' => 'required|integer|min:1',
+        'total' => 'required|integer',
+    ]);
 
+    DB::beginTransaction();
+
+    try {
+        // Ambil data stok berdasarkan id_barang
+        $stock = Stock::where('id_barang', $request->id_barang)->first();
+
+        if (!$stock) {
+            return response()->json(['message' => 'Stock barang tidak ditemukan.'], 404);
+        }
+
+        if ($stock->limit < $request->jumlah_barang) {
+            return response()->json(['message' => 'Stok barang tidak mencukupi.'], 400);
+        }
+
+        // Kurangi stok limit
+        $stock->decrement('limit', $request->jumlah_barang);
+
+        // Buat order
         $order = Order::create([
             'customer_id' => $request->customer_id,
             'id_barang' => $request->id_barang,
@@ -45,12 +65,23 @@ class OrderController extends Controller
             'total' => $request->total,
         ]);
 
+        DB::commit();
 
         return response()->json([
-            'message' => 'Data order berhasil ditambahkan.',
+            'message' => 'Data order berhasil ditambahkan dan stok dikurangi.',
             'data' => $order
         ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'message' => 'Gagal membuat order.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     // Mengupdate data user
     public function update(Request $request, $id): JsonResponse
