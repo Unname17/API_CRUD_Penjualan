@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@ifump.net',
             'username' => 'admin',
-            'password' => Hash::make('password')
+            'password' => Hash::make('123')
         ]);
     }
 }

@@ -27,10 +27,10 @@ class Barang extends Model
     }
 
     public function stock():HasMany{
-        return $this->hasMany(Stock::class,'barang_id');
+        return $this->hasMany(Stock::class,'id_barang');
     }
 
     public function order():HasMany{
-        return $this->hasMany(Order::class,'barang_id');
+        return $this->hasMany(Order::class,'id_barang');
     }
 }

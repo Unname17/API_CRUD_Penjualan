@@ -13,7 +13,7 @@ class Order extends Model
     protected $table = 'order';
     
     protected $fillable = [
-        'customer_id',
+        'id_customer',
         'id_barang',
         'order_date',
         'jumlah_barang',
@@ -23,16 +23,16 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'customer_id' => 'string',
+            'id_customer' => 'string',
             'id_barang' => 'string',
         ];
     }
 
     public function customer():BelongsTo{
-        return $this->belongsTo(Customer::class, 'customer_id');
+        return $this->belongsTo(Customer::class, 'id_customer', 'id');
     }
 
     public function barang():BelongsTo{
-        return $this->belongsTo(Barang::class, 'barang_id');
+        return $this->belongsTo(Barang::class, 'id_barang', 'id'); // <- pastikan cari ke `barang.id`
     }
 }

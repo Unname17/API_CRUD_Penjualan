@@ -12,7 +12,7 @@ class StockController extends Controller
     public function index(): JsonResponse
     {
 
-        $dataStock = Stock::all();
+         $dataStock = Stock::with('barang')->get();
         return response()->json($dataStock, 200);
     }
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('order', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('customer_id')->constrained('customer')->cascadeOnDelete();
+            $table->foreignUlid('id_customer')->constrained('customer')->cascadeOnDelete();
             $table->foreignUlid('id_barang')->constrained('barang')->cascadeOnDelete();
             $table->date('order_date');
             $table->integer('jumlah_barang');
